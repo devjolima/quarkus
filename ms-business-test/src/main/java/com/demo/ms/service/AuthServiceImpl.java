@@ -16,7 +16,7 @@ public class AuthServiceImpl implements FallbackFactory<AuthService>  {
 			@Override
 			public String getAuth() {
 				
-				return "INVOKING LOCAL STORAGE ..."+cause.getMessage();
+				return "INVOKING LOCAL STORAGE ...";
 			}
 		};
 	}

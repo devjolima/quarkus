@@ -16,6 +16,11 @@ public class AccessController {
 	@Autowired
 	private AuthService service;
 	
+	@GetMapping("/zull-test")
+	public ResponseEntity<String> getName() {
+		return ResponseEntity.ok().body("TESTE ZUUL OK");
+	}
+	
 	@GetMapping("/me")
 	public ResponseEntity<String> getName(@RequestHeader (name="Authorization") String token) {
 		return ResponseEntity.ok().body(service.getAuth());

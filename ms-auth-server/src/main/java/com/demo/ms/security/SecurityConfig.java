@@ -24,6 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/auth").permitAll()
 				.antMatchers("/api/me").permitAll()
 				.antMatchers("/api/get-name").permitAll()
+				.antMatchers("/autorizacao/**").permitAll()
 				.antMatchers("/api/feign-test").permitAll()
 				.antMatchers("/configuration/ui").permitAll()
 				.antMatchers("/webjars/**").permitAll()

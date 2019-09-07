@@ -1,0 +1,8 @@
+spring:
+  application:
+     name: ms-zuul-proxy
+  cloud:
+    config:
+       uri: http://localhost:9090
+
+

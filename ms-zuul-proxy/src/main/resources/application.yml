@@ -1,0 +1,14 @@
+server:
+   port: 8765
+   
+ribbon:
+  eureka:
+    enabled: true
+    
+zuul:
+   ignoredServices: "*"
+   prefix: /api
+   routes:
+      auth:
+         path: /negocio/**
+         serviceId: MS-BUSINESS-TEST
