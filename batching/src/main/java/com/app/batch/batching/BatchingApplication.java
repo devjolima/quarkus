@@ -19,7 +19,7 @@ import com.app.batch.batching.repository.PaymentsRepository;
 @ComponentScan("com.app.batch.batching")
 @EntityScan("com.app.batch.batching.entity")
 @EnableJpaRepositories("com.app.batch.batching.repository")
-public class BatchingApplication implements CommandLineRunner{
+public class BatchingApplication {
 
 	@Autowired
 	private PaymentsRepository paymentsRepository;
@@ -28,16 +28,5 @@ public class BatchingApplication implements CommandLineRunner{
 		SpringApplication.run(BatchingApplication.class, args);
 	}
 
-	@Override
-	public void run(String... args) throws Exception {
-		
-		Payments pay = new Payments();
-		pay.setClientCode("123456987");
-		pay.setStatus(StatusEnum.PAYMENT_FAIL);
-		pay.setValue(1000D);
-		
-		paymentsRepository.save(pay);
-		
-	}
 
 }

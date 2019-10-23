@@ -2,6 +2,9 @@ package com.app.batch.batching.job;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,12 +17,15 @@ public class PaymentWriter implements ItemWriter<Payments>{
 	
 	@Autowired
 	private PaymentsRepository paymentsRepository;
+	
+	@PersistenceContext
+	private EntityManager em;
 
 	@Override
 	public void write(List<? extends Payments> items) throws Exception {
 	
 		
-		paymentsRepository.save(parsePayment(items.get(0)));
+		em.merge(items.get(0));
 		
 	}
 	
