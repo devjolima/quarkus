@@ -36,7 +36,7 @@ public class JobConfig {
 	@Bean
 	public JdbcCursorItemReader<Payments> reader() {
 
-		final String SQL = "SELECT * FROM PAYMENTS WHERE status = 1 ";
+		final String SQL = "SELECT * FROM PAYMENTS WHERE status = 0 ";
 
 		JdbcCursorItemReader<Payments> reader = new JdbcCursorItemReader<Payments>();
 		reader.setDataSource(dataSource);
