@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jonathaslima.flights.service.FlightsService;
-import com.jonathaslima.flights.to.RequestFlyTO;
+import com.jonathaslima.flights.to.RequestTO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +27,7 @@ public class FlightsRest {
 	@SuppressWarnings({ "static-access", "rawtypes" })
 	@PostMapping("/fly")
 	@ApiOperation(value = "End Point for search flyghts")
-	public ResponseEntity findFly(@RequestBody RequestFlyTO request){
+	public ResponseEntity findFly(@RequestBody RequestTO request){
 		
 		return new ResponseEntity(HttpStatus.OK).ok().body(service.findFly(request));
 	}

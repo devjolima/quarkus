@@ -15,9 +15,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.jonathaslima.flights.to.RequestFlyTO;
-import com.jonathaslima.flights.to.Response;
-import com.jonathaslima.flights.to.ResponseDetailTO;
+import com.jonathaslima.flights.to.JsonResultTO;
+import com.jonathaslima.flights.to.RequestTO;
+import com.jonathaslima.flights.to.ResponseTO;
 
 @Service
 public class FlightsService {
@@ -26,73 +26,83 @@ public class FlightsService {
 	private RestTemplate restTemplate;
 	
 	
-	public Map<String, Response> findFly(RequestFlyTO flyObjTO) {
+	public Map<String, ResponseTO> findFly(RequestTO flyObjTO) {
 		
-		String apiUrl = "https://api.skypicker.com/flights?flyFrom=OPO&to=LIS&partner=picky&curr=EUR";
-		String json = restTemplate.exchange(apiUrl, HttpMethod.GET, mountHeadersRequisition(), String.class).getBody();
+		String json = getFlyInfoJson(flyObjTO.airportCodeFrom, flyObjTO.airportCodeTo, flyObjTO.currency);
 		
 		JSONObject jsonResult = new JSONObject(json);
 		JSONArray data = jsonResult.getJSONArray("data");
 		
-		List<ResponseDetailTO> listFly = new ArrayList<ResponseDetailTO>();
+		List<JsonResultTO> listFly = new ArrayList<JsonResultTO>();
 		
 		String flyFrom = flyObjTO.airportCodeFrom;
 		String flyTo = flyObjTO.airportCodeTo;
 		String currency = flyObjTO.currency;
 		
-		
 		for(int i=0; i<data.length(); i++) {
-			
-			ResponseDetailTO detail = new ResponseDetailTO();
-			
-			Integer price = (Integer)data.getJSONObject(i).get("price");
-			String cityNameFrom = (String) data.getJSONObject(i).get("cityFrom");
-			String cityNameTo = (String) data.getJSONObject(i).get("cityTo");
-			
-			detail.setCurrency(currency);
-			detail.setCodeFrom(flyFrom);
-			detail.setCodeTo(flyTo);
-			detail.setCityNameFrom(cityNameFrom);
-			detail.setCityNameTo(cityNameTo);
-			detail.setPrice(price);
-			
-			Double bagPrice1 = (Double) data.getJSONObject(i).getJSONObject("bags_price").get("1");
-			if(null != data.getJSONObject(i).getJSONObject("bags_price") && !data.getJSONObject(i).getJSONObject("bags_price").isNull("2")) {
-				Double bagPrice2 = (Double)data.getJSONObject(i).getJSONObject("bags_price").get("2") ;
-				detail.setBag2(bagPrice2);
-			}else {
-				detail.setBag2(0.0);
-			}
-			detail.setBag1(bagPrice1);
-			listFly.add(detail);
+			setupJsonToResponseDetail(data, listFly, flyFrom, flyTo, currency, i);
 		}
 		
 		return setupResponse(listFly);
 		
 	}
-	
-	private Map<String, Response> setupResponse(List<ResponseDetailTO> listFly) {
-		
-		Response response = new Response();
-		
-		OptionalDouble priceAverage =  listFly.stream().mapToInt(ResponseDetailTO::getPrice).average();
-		OptionalDouble bag1Average =  listFly.stream().mapToDouble(ResponseDetailTO::getBag1).average();
-		OptionalDouble bag2Average =  listFly.stream().mapToDouble(ResponseDetailTO::getBag2).average();
 
-		priceAverage.getAsDouble();
-		bag1Average.getAsDouble();
-		bag2Average.getAsDouble();
+	private void setupJsonToResponseDetail(JSONArray data, List<JsonResultTO> listFly, String flyFrom, String flyTo,
+			String currency, int i) {
+		
+		JsonResultTO detail = new JsonResultTO();
+		
+		detail.setCurrency(currency);
+		detail.setCodeFrom(flyFrom);
+		detail.setCodeTo(flyTo);
+		detail.setCityNameFrom((String) data.getJSONObject(i).get("cityFrom"));
+		detail.setCityNameTo((String) data.getJSONObject(i).get("cityTo"));
+		detail.setPrice((Integer)data.getJSONObject(i).get("price"));
+		detail.setBag1((Double) data.getJSONObject(i).getJSONObject("bags_price").get("1"));
+		
+		if(null != data.getJSONObject(i).getJSONObject("bags_price") && !data.getJSONObject(i).getJSONObject("bags_price").isNull("2")) {
+			detail.setBag2((Double)data.getJSONObject(i).getJSONObject("bags_price").get("2"));
+		}else {
+			detail.setBag2(0.0);
+		}
+		listFly.add(detail);
+	}
+
+	private String getFlyInfoJson(String airportCodeFrom, String airportCodeTo, String currency) {
+		String apiUrl = "https://api.skypicker.com/flights?flyFrom="+airportCodeFrom+"&to="+airportCodeTo+"&partner=picky&curr="+currency;
+		String json = restTemplate.exchange(apiUrl, HttpMethod.GET, mountHeadersRequisition(), String.class).getBody();
+		return json;
+	}
+	
+	private Map<String, ResponseTO> setupResponse(List<JsonResultTO> listFly) {
+		
+		ResponseTO response = new ResponseTO();
 		
 		response.currency = listFly.get(0).getCurrency();
 		response.name = listFly.get(0).getCityNameFrom();
-		response.price_average = priceAverage.getAsDouble();
+		response.price_average = getPriceAverage(listFly);
 			
-		Map<String, Response> mapFrom = new HashMap<String, Response>();
+		Map<String, ResponseTO> mapFrom = new HashMap<String, ResponseTO>();
 		mapFrom.put(listFly.get(0).getCodeFrom(), response);
 		
 		return mapFrom;
 	}
-
+	
+	public Double getPriceAverage(List<JsonResultTO> listFly) {
+		OptionalDouble priceAverage = listFly.stream().mapToInt(JsonResultTO::getPrice).average();
+		return priceAverage.getAsDouble();
+	}
+	
+	public Double getBag1Average(List<JsonResultTO> listFly) {
+		OptionalDouble bag1Average = listFly.stream().mapToDouble(JsonResultTO::getBag1).average();
+		return bag1Average.getAsDouble();
+	}
+	
+	public Double getBag2Average(List<JsonResultTO> listFly) {
+		OptionalDouble bag2Average = listFly.stream().mapToDouble(JsonResultTO::getBag2).average();
+		return bag2Average.getAsDouble();
+	}
+	
 	@SuppressWarnings("rawtypes")
 	private HttpEntity mountHeadersRequisition() {
 
