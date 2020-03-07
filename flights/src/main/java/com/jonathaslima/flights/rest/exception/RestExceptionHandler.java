@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -23,14 +22,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
    }
    
    
-   @Override
-   protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpHeaders headers, 
-		   HttpStatus status, WebRequest request) {
-       String error = "Rest service not executed";
-       return buildResponseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error));
-   }
-   
-
    private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
        return new ResponseEntity<>(apiError, apiError.getStatus());
    }
