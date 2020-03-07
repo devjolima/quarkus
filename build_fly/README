@@ -1,0 +1,7 @@
+README
+
+Execute this command to build the image
+sudo docker-compose up --build
+
+access url
+http://localhost:8080/fly/swagger-ui.html#/flights-rest
