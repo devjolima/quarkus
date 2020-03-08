@@ -3,6 +3,7 @@ package com.jonathaslima.flights.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,6 +40,7 @@ public class FlightsRest {
 	@SuppressWarnings({ "static-access", "rawtypes" })
 	@PostMapping("/fly")
 	@ApiOperation(value = "End Point for search flyghts")
+	@Cacheable("fly")
 	public ResponseEntity findFly(@RequestBody RequestTO request) throws FlyNotFoundException{
 		
 		log.info("Request values: Aiport from : [ "+request.airportCodeFrom +", Aiport to :" +request.airportCodeTo+" ]");
@@ -48,10 +50,12 @@ public class FlightsRest {
 			return new ResponseEntity(HttpStatus.OK).ok().body(service.findFly(request));
 			
 		} catch (Exception e) {
+			
 			ApiError apiError = new ApiError();
 			apiError.setMessage("Try Again with anothers aiports code please");
 			apiError.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 			return new ResponseEntity<>(apiError, apiError.getStatus());
+			
 		}
 	}
 	

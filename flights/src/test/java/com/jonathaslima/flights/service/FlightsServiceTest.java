@@ -1,6 +1,7 @@
 package com.jonathaslima.flights.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class FlightsServiceTest {
 		
 		Double average = service.getPriceAverage(listFly);
 		assertEquals(40, average);
+		assertNotEquals(40.1, average);
 	}
 	
 	@Test
@@ -65,6 +67,7 @@ public class FlightsServiceTest {
 		Double average = service.getBag1Average(listFly);
 		
 		assertEquals(40, average);
+		assertNotEquals(40.1, average);
 	}
 	
 	@Test
@@ -80,6 +83,7 @@ public class FlightsServiceTest {
 		Double average = service.getBag2Average(listFly);
 		
 		assertEquals(40, average);
+		assertNotEquals(40.1, average);
 	}
 
 }

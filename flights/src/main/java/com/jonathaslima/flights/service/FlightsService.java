@@ -64,7 +64,13 @@ public class FlightsService {
 		return data;
 	}
 	
-	
+	/**
+	 * Method to persist request into mongoDB
+	 * 
+	 * @param airportCodeFrom
+	 * @param airportCodeTo
+	 * @param currency
+	 */
 	private void saveRquest(String airportCodeFrom, String airportCodeTo, String currency) {
 		
 		Search search = new Search();
@@ -72,11 +78,18 @@ public class FlightsService {
 		search.setFromCode(airportCodeFrom);
 		search.setToCode(airportCodeTo);
 		search.setDate(new Date());
+		
 		repository.save(search);
 		
 	}
 
-
+	
+	/**
+	 * Method called for REST API to start process informations of flyghts
+	 * 
+	 * @param request - obj request client
+	 * @return Map<String, ResponseTO> with informations of the flyghts
+	 */
 	public Map<String, ResponseTO> findFly(RequestTO request) {
 		
 		List<JsonResultTO> listFly = new ArrayList<JsonResultTO>();
@@ -88,7 +101,13 @@ public class FlightsService {
 	}
 
 
+	/**
+	 * Method to process informations returned to JSON rest URL
+	 * @param flyObjTO - Request object
+	 * @param listFly - list of flyghts
+	 */
 	private void process(RequestTO flyObjTO, List<JsonResultTO> listFly) {
+		
 		JSONArray data = getFlyInfoJson(flyObjTO.airportCodeFrom, flyObjTO.airportCodeTo, flyObjTO.currency);
 		
 		String flyFrom = flyObjTO.airportCodeFrom;
@@ -108,13 +127,14 @@ public class FlightsService {
 
 
 	/**
+	 * Method is responsable to setup one list with result returned to json request RUL
 	 * 
-	 * @param data
-	 * @param listFly
-	 * @param flyFrom
-	 * @param flyTo
-	 * @param currency
-	 * @param i
+	 * @param data - ArrayJson
+	 * @param listFly - List for store values returned json
+	 * @param flyFrom - Code airport from
+	 * @param flyTo - Code airpot to
+	 * @param currency - Info money eg. EUR, US, BRL
+	 * @param i - numeral increment structure for recursive (line 102)
 	 */
 	private void setupJsonToResponseDetail(JSONArray data, List<JsonResultTO> listFly, String flyFrom, String flyTo,
 			String currency, int i) {
@@ -129,16 +149,24 @@ public class FlightsService {
 		detail.setPrice((Integer)data.getJSONObject(i).get("price"));
 		
 		if(null != data.getJSONObject(i).getJSONObject("bags_price") && !data.getJSONObject(i).getJSONObject("bags_price").isNull("1")) {
+			
 			detail.setBag1((Double) data.getJSONObject(i).getJSONObject("bags_price").get("1"));
+			
 		}else {
+			
 			detail.setBag1(0.0);
 		}
 		
 		if(null != data.getJSONObject(i).getJSONObject("bags_price") && !data.getJSONObject(i).getJSONObject("bags_price").isNull("2")) {
+			
 			detail.setBag2((Double)data.getJSONObject(i).getJSONObject("bags_price").get("2"));
+			
 		}else {
+			
 			detail.setBag2(0.0);
+			
 		}
+		
 		listFly.add(detail);
 	}
 
@@ -175,29 +203,37 @@ public class FlightsService {
 		Map<String, ResponseTO> mapResponse = new HashMap<String, ResponseTO>();
 		mapResponse.put(listFly.get(0).getCodeFrom(), responseFrom);
 		mapResponse.put(listFly.get(0).getCodeTo(), responseTo);
-		
         	
 		return mapResponse;
+		
 	}
 	
 	public double round(double input, int scale) {
+		
         BigDecimal bigDecimal = new BigDecimal(input).setScale(scale, RoundingMode.HALF_EVEN);
         return bigDecimal.doubleValue();
+        
     }
 	
 	public Double getPriceAverage(List<JsonResultTO> listFly) {
+		
 		OptionalDouble priceAverage = listFly.stream().mapToInt(JsonResultTO::getPrice).average();
 		return priceAverage.getAsDouble();
+		
 	}
 	
 	public Double getBag1Average(List<JsonResultTO> listFly) {
+		
 		OptionalDouble bag1Average = listFly.stream().mapToDouble(JsonResultTO::getBag1).average();
 		return bag1Average.getAsDouble();
+		
 	}
 	
 	public Double getBag2Average(List<JsonResultTO> listFly) {
+		
 		OptionalDouble bag2Average = listFly.stream().mapToDouble(JsonResultTO::getBag2).average();
 		return bag2Average.getAsDouble();
+		
 	}
 	
 	@SuppressWarnings("rawtypes")
