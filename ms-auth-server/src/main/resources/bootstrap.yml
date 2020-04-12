@@ -1,7 +1,0 @@
-spring:
-  application:
-     name: ms-auth-server
-  cloud:
-    config:
-       uri: http://localhost:9090
-
