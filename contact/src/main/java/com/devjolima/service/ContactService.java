@@ -20,7 +20,7 @@ public class ContactService {
     @Inject MongoClient mongoClient;
 
     public void saveRequest(final RequestData request) {
-        Document document = new Document()
+        final Document document = new Document()
                 .append( "code", request.getCode());
         getCollection().insertOne(document);
 
@@ -28,17 +28,17 @@ public class ContactService {
 
     public List<RequestData> list(){
 
-        List<RequestData> list = new ArrayList<>();
-        MongoCursor<Document> cursor = getCollection().find().iterator();
+        final List<RequestData> list = new ArrayList<>();
+        final MongoCursor<Document> cursor = getCollection().find().iterator();
 
         try {
             while(cursor.hasNext()){
-                Document document = cursor.next();
-                RequestData data = new RequestData();
+                final Document document = cursor.next();
+                final RequestData data = new RequestData();
                 data.setCode(document.getString("code"));
                 list.add(data);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
            cursor.close();
         }
 
